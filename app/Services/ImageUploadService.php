@@ -48,15 +48,12 @@ class ImageUploadService {
             File::makeDirectory($image_dir, 0777);
         };
 
-        //if file is present generate new filename
         $setNewImageName = time() . '-' . $filename;
 
         if($method === 'POST' || $method === 'PATCH'){
 
             if(!File::exists($image_name)){
-                //update the property with the new filename
                 $model->update([$property => $dir . base64_encode($filename)]);
-                //remove the old file.
                 file_put_contents($image_name, file_get_contents($filepath));
             } else {
                 $model->update([$property => $dir . base64_encode($setNewImageName)]);
