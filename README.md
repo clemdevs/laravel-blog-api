@@ -1,5 +1,5 @@
 ## To run the project
 
---configure the .env file
---run `migrate:fresh --seed;` to seed the database.
---run `php artisan serve;`
+1. configure the .env file
+2. run `migrate:fresh --seed;` to seed the database.
+3. run `php artisan serve;`
