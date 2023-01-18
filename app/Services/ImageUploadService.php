@@ -51,22 +51,7 @@ class ImageUploadService {
         //if file is present generate new filename
         $setNewImageName = time() . '-' . $filename;
 
-        if($method === 'PATCH'){
-            if(isset($method[$property])){
-                $file = self::getImageName($model, $property);
-
-                if(!File::exists($file)){
-                    $model->update([$property => $dir . base64_encode($setNewImageName)]);
-                    file_put_contents($image_dir.$setNewImageName, file_get_contents($filepath));
-                }
-                //update the property with the new filename
-                $model->update([$property => $dir . base64_encode($filename)]);
-                //remove the old file.
-                file_put_contents($image_name, file_get_contents($filepath));
-            }
-        }
-
-        if($method === 'POST'){
+        if($method === 'POST' || $method === 'PATCH'){
 
             if(!File::exists($image_name)){
                 //update the property with the new filename
@@ -75,7 +60,6 @@ class ImageUploadService {
                 file_put_contents($image_name, file_get_contents($filepath));
             } else {
                 $model->update([$property => $dir . base64_encode($setNewImageName)]);
-
                 file_put_contents($image_dir.$setNewImageName, file_get_contents($filepath));
             }
 
@@ -85,9 +69,7 @@ class ImageUploadService {
 
     public static function getImageName(\Illuminate\Database\Eloquent\Model $model, string $key)
     {
-        if(isset($model[$key])){
-            return base64_decode(Str::after($model[$key], 'images/'));
-        }
+        return base64_decode(Str::after($model[$key], 'images/'));
     }
 
 }

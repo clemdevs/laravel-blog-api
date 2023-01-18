@@ -106,13 +106,11 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post, ImageUploadService $imageUpload)
+    public function destroy(Post $post)
     {
         try{
-            $filename = $imageUpload::getImageName($post, 'image_url');
-            if (File::exists(public_path('images/').$filename)) {
-                File::delete(public_path($filename));
-            }
+            $file = public_path('images/').base64_decode(Str::after($post->image_url, 'images/'));
+            File::delete($file);
             $post->delete();
             return response()->noContent();
         }
