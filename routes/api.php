@@ -39,9 +39,6 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('/{id}/comments', [CommentController::class, 'store']);
         Route::apiResource('/comments', CommentController::class);
 
-        //Filter Categories and tags.
-        Route::get('/cat/{slug}', [PostFilterController::class, 'filterCetegory']);
-        Route::get('/tag/{slug}', [PostFilterController::class, 'filterTags']);
     });
 
     Route::apiResource('/posts', PostController::class);
@@ -52,7 +49,6 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('/tags', CategoryController::class);
         Route::apiResource('/comments', CommentController::class);
         Route::get('/{id}/comments', [CommentController::class, 'index']);
-        Route::get('/{search}', [PostFilterController::class, 'index']);
     });
 
 });
