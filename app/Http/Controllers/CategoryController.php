@@ -51,7 +51,7 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         try{
-            return new CategoryResource($category);
+            return new CategoryResource(Category::with('posts')->find($category->id));
         }
         catch(\Exception $e){
             return response($e->getMessage());
