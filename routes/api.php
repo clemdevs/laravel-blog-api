@@ -33,10 +33,10 @@ Route::middleware('auth:sanctum')->group(function(){
     //Routes for authenticated users.
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/posts', PostController::class);
+    Route::get('/blog', PostFilterController::class);
 
     //User routes.
     Route::group(['prefix' => 'posts', 'as' => 'user.'], function(){
-        Route::get('?filter={keyword}', PostFilterController::class);
         Route::get('/', [PostController::class, 'index']);
         Route::post('/{id}/comments', [CommentController::class, 'store']);
         Route::apiResource('/comments', CommentController::class);
@@ -45,7 +45,6 @@ Route::middleware('auth:sanctum')->group(function(){
 
     //Admin Routes.
     Route::group(['middleware' => 'is_admin', 'prefix' => 'posts', 'as' => 'admin.'], function(){
-        Route::get('?filter={keyword}', PostFilterController::class);
         Route::apiResource('/category', CategoryController::class);
         Route::apiResource('/tags', CategoryController::class);
         Route::apiResource('/comments', CommentController::class);
