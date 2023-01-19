@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostFilterController;
+use App\Http\Controllers\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -46,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function(){
     //Admin Routes.
     Route::group(['middleware' => 'is_admin', 'prefix' => 'posts', 'as' => 'admin.'], function(){
         Route::apiResource('/category', CategoryController::class);
-        Route::apiResource('/tags', CategoryController::class);
+        Route::apiResource('/tags', TagController::class);
         Route::apiResource('/comments', CommentController::class);
         Route::get('/{id}/comments', [CommentController::class, 'index']);
         Route::get('/', PostFilterController::class);
