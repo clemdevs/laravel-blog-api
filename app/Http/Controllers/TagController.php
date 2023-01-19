@@ -51,7 +51,7 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
-        return new TagResource($tag->with('posts')->first());
+        return new TagResource(Tag::with('posts')->find($tag->id));
     }
 
     /**
