@@ -51,7 +51,7 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
-        return new TagResource($tag);
+        return new TagResource($tag->with('posts')->first());
     }
 
     /**
@@ -65,7 +65,7 @@ class TagController extends Controller
     {
         try{
             $tag->update($request->validated());
-            return new TagResource($tag->with('posts')->get());
+            return new TagResource($tag->with('posts')->findOrFail($tag)->get());
         }
         catch(\Exception $e){
             return response($e->getMessage());
