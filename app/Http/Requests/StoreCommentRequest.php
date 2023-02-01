@@ -20,7 +20,6 @@ class StoreCommentRequest extends FormRequest
     {
         $this->merge([
             'user_id' => $this->user()->id,
-            'post_id' => $this->route('id')
         ]);
     }
 
@@ -34,8 +33,7 @@ class StoreCommentRequest extends FormRequest
         return [
             'message' => 'string|required',
             'approved' => 'boolean',
-            'user_id' => 'exists:users,id',
-            'post_id' => 'exists:posts,id'
+            'user_id' => 'exists:users,id'
         ];
     }
 }

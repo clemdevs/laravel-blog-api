@@ -9,6 +9,11 @@ use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
+
+    public function __construct(){
+        $this->authorizeResource(Category::class, 'category');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,12 +21,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        try{
-            return CategoryResource::collection(Category::orderBy('created_at', 'desc')->get());
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        return CategoryResource::collection(Category::orderBy('created_at', 'desc')->get());
     }
 
     /**
@@ -33,13 +33,8 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request, Category $category)
     {
-        try{
-            $result = $category->create($request->validated());
-            return new CategoryResource($result);
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $result = $category->create($request->validated());
+        return new CategoryResource($result);
     }
 
     /**
@@ -50,12 +45,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        try{
-            return new CategoryResource(Category::with('posts')->find($category->id));
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        return new CategoryResource($category->load('posts'));
     }
 
     /**
@@ -67,13 +57,8 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        try{
-            $category->update($request->validated());
-            return new CategoryResource($category);
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $category->update($request->validated());
+        return new CategoryResource($category);
     }
 
     /**
@@ -84,12 +69,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        try{
-            $category->delete();
-            return response()->noContent();
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $category->delete();
+        return response()->noContent();
     }
 }

@@ -33,7 +33,7 @@ class AuthController extends Controller
         ]);
 
         //assign a default role to the user as 'user'
-        $user_role = Role::pluck('id', 'slug')->toArray()['user'];
+        $user_role = Role::where('slug', 'user');
         $user->roles()->attach($user_role);
 
 

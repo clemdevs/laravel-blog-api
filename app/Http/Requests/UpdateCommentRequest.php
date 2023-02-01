@@ -24,7 +24,9 @@ class UpdateCommentRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'message' => 'nullable|string|min:10',
+            'approved' => 'nullable|boolean',
+            'user_id' => 'exists:users,id'
         ];
     }
 }

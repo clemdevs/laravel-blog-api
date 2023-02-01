@@ -10,7 +10,14 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['message', 'user_id', 'post_id'];
+    protected $fillable = ['message', 'approved', 'user_id'];
+
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['user'];
 
     public function user(): BelongsTo
     {

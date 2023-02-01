@@ -17,14 +17,6 @@ class UpdatePostRequest extends FormRequest
         return true;
     }
 
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'category_id' => $this->category_id,
-            'tags' => $this->tags
-        ]);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -36,9 +28,9 @@ class UpdatePostRequest extends FormRequest
             'title' => 'string|max:1000',
             'body' => 'nullable|string',
             'user_id' => 'exists:users,id',
-            'categories' => 'exists:categories,id',
-            'tags' => 'exists:tags,id',
-            'image_url' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
+            'categories_id' => 'nullable|array',
+            'tags' => 'nullable|array',
+            'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
         ];
     }
 }

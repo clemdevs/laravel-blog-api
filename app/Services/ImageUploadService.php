@@ -33,14 +33,16 @@ class ImageUploadService {
      * Save an image and update it in the database
      * @param \Illuminate\Database\Eloquent\Model  $model
      */
-    private static function saveImage(UploadedFile $file, \Illuminate\Database\Eloquent\Model $model, string $property, string $method = 'POST')
+    private static function saveImage(UploadedFile $file, \Illuminate\Database\Eloquent\Model $model, $property, string $method = 'POST')
     {
-
         $filename = $file->getClientOriginalName();
         $filepath = $file->path();
+        //path to image directory
         $image_dir = public_path('images/');
+        //relative path
         $dir = 'images/';
-        $image_name = $image_dir . $filename;
+        //absolute path of the file
+        $absolute_path = $image_dir . $filename;
 
         //Check if directory exists.
         if(!File::exists($image_dir)){
@@ -50,23 +52,25 @@ class ImageUploadService {
 
         $setNewImageName = time() . '-' . $filename;
 
-        if($method === 'POST' || $method === 'PATCH'){
+        if($method === 'POST' || $method === 'PUT'){
+            $filename_db = self::getImageName($model, $property);
 
-            if(!File::exists($image_name)){
+            if(!File::exists($absolute_path)){
                 $model->update([$property => $dir . base64_encode($filename)]);
-                file_put_contents($image_name, file_get_contents($filepath));
+                file_put_contents($absolute_path, file_get_contents($filepath));
             } else {
+                if($method !== 'POST'){
+                    //Delete the image if it already existed while updating the model and replace it with a new image.
+                    if(File::exists($image_dir.$filename_db)) File::delete($image_dir.$filename_db);
+                }
                 $model->update([$property => $dir . base64_encode($setNewImageName)]);
                 file_put_contents($image_dir.$setNewImageName, file_get_contents($filepath));
             }
-
         }
-
     }
 
     public static function getImageName(\Illuminate\Database\Eloquent\Model $model, string $key)
     {
         return base64_decode(Str::after($model[$key], 'images/'));
     }
-
 }

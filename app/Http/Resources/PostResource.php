@@ -21,9 +21,9 @@ class PostResource extends JsonResource
             'image_url' => $this->image_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'categories' => CategoryResource::collection($this->categories),
-            'tags' => TagResource::collection($this->tags),
-            'comments' => CommentResource::collection($this->comments->where('approved', 1)), //show only comments approved by admin
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'comments' => CommentResource::collection($this->whenLoaded('comments')),
         ];
     }
 }

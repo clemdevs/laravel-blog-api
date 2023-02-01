@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Register and login routes
+//Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -33,24 +33,17 @@ Route::middleware('auth:sanctum')->group(function(){
 
     //Routes for authenticated users.
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    //CRUD routes.
+    Route::apiResource('/categories', CategoryController::class);
+    Route::apiResource('/tags', TagController::class);
     Route::apiResource('/posts', PostController::class);
 
-    //User routes.
-    Route::group(['prefix' => 'posts', 'as' => 'user.'], function(){
-        Route::get('/', [PostController::class, 'index']);
-        Route::post('/{id}/comments', [CommentController::class, 'store']);
+    //Post Comments crud
+    Route::group(['prefix' => 'posts/{post}'], function(){
         Route::apiResource('/comments', CommentController::class);
-        Route::get('/', PostFilterController::class);
     });
 
-
-    //Admin Routes.
-    Route::group(['middleware' => 'is_admin', 'prefix' => 'posts', 'as' => 'admin.'], function(){
-        Route::apiResource('/category', CategoryController::class);
-        Route::apiResource('/tags', TagController::class);
-        Route::apiResource('/comments', CommentController::class);
-        Route::get('/{id}/comments', [CommentController::class, 'index']);
-        Route::get('/', PostFilterController::class);
-    });
-
+    //Filter route.
+    Route::get('/posts', PostFilterController::class);
 });

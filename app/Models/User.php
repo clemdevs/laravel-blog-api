@@ -44,10 +44,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $with = ['roles'];
+
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class)
-        ->withTimestamps();
+        return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
     public function posts(): HasMany
@@ -60,23 +61,8 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
-    public function is_Admin(): bool
+    public function isAdmin(): bool
     {
-        if($this->roles()) {
-            return $this->roles()->pluck('slug')->contains('admin');
-        }
-        return false;
-    }
-
-    /**
-     * Perform pre-authorization checks.
-     */
-    public function before(User $user, string $ability): bool|null
-    {
-        if ($user->is_Admin())
-        {
-            return true;
-        }
-        return null;
+        return $this->roles('admin')->exists();
     }
 }

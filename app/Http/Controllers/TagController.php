@@ -9,6 +9,11 @@ use App\Http\Resources\TagResource;
 
 class TagController extends Controller
 {
+
+    public function __construct(){
+        $this->authorizeResource(Tag::class, 'tag');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,13 +21,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        try{
-            $tags = Tag::all();
-            return new TagResource($tags);
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        return TagResource::collection(Tag::all());
     }
 
     /**
@@ -34,13 +33,8 @@ class TagController extends Controller
      */
     public function store(StoreTagRequest $request, Tag $tag)
     {
-        try{
-            $result = $tag->create($request->validated());
-            return new TagResource($result);
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $result = $tag->create($request->validated());
+        return new TagResource($result);
     }
 
     /**
@@ -51,7 +45,7 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
-        return new TagResource(Tag::with('posts')->find($tag->id));
+        return new TagResource($tag->load('posts'));
     }
 
     /**
@@ -63,13 +57,8 @@ class TagController extends Controller
      */
     public function update(UpdateTagRequest $request, Tag $tag)
     {
-        try{
-            $tag->update($request->validated());
-            return new TagResource($tag->with('posts')->findOrFail($tag)->get());
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $tag->update($request->validated());
+        return new TagResource($tag->load('posts'));
     }
 
     /**
@@ -80,12 +69,7 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
-        try{
-            $tag->delete();
-            return response()->noContent();
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $tag->delete();
+        return response()->noContent();
     }
 }

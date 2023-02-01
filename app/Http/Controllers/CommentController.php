@@ -22,36 +22,29 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, Post $post)
+    public function index(Post $post, Request $request)
     {
-        try{
-            $comments = Comment::with('posts')->where('user_id', $request->user()->id)->get();
-            return new PostResource($comments);
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        return new CommentResource($post->only('comments'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreCommentRequest  $request
-     * @param  \App\Models\Comment  $comment
+     * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCommentRequest $request, int $post, Comment $comment)
+    public function store(StoreCommentRequest $request, Post $post)
     {
-        $getPosts = Post::where('id', $post);
-        $thePost = (int) array_values($getPosts->pluck('id')->toArray());
+        $result = $post->comments()->create($request->validated());
 
-        if(!$getPosts){
-            return response()->json(["there is no post with id of $thePost"], 422);
+        //Only allow admin to change comment to be approved.
+        if(isset($result['approved'])){
+            $this->authorize('update', [$post, $result['approved']]);
         }
-
-        $result = $comment->create($request->validated());
 
         return new CommentResource($result);
     }
@@ -71,16 +64,13 @@ class CommentController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateCommentRequest  $request
+     * @param  \App\Models\Post  $comment
      * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCommentRequest $request, Comment $comment)
+    public function update(UpdateCommentRequest $request, Post $post, Comment $comment)
     {
-        $approved = (bool) 0;
-        if($request->has('is_approved')){
-            $approved = 1;
-        }
-        $comment->update($request->is_validated());
+        $comment->update($request->validated());
         return new CommentResource($comment);
     }
 
@@ -92,6 +82,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+        return response()->noContent();
     }
 }

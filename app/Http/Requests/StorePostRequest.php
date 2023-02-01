@@ -19,8 +19,6 @@ class StorePostRequest extends FormRequest
     {
         $this->merge([
             'user_id' => $this->user()->id,
-            'category_id' => $this->categories_id,
-            'tags' => $this->tags
         ]);
     }
 
@@ -35,7 +33,7 @@ class StorePostRequest extends FormRequest
             'title' => 'required|string|min:5|max:1000',
             'body' => 'required|string',
             'user_id' => 'exists:users,id',
-            'category_id' => 'array|nullable|exists:categories,id',
+            'categories_id' => 'array|nullable|exists:categories,id',
             'tags' => 'array|nullable',
             'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
         ];

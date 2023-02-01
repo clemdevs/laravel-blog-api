@@ -21,49 +21,35 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index(Request $request, Post $post)
+    public function index(Request $request)
     {
-        try{
-            return PostResource::collection(Post::with(['categories', 'tags'])->orderBy('created_at', 'desc')->paginate());
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        return PostResource::collection(Post::all()->orderBy('created_at', 'desc')->paginate());
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Models\Post  $post
      * @param  \App\Http\Requests\StorePostRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StorePostRequest $request, Post $post, ImageUploadService $imageUpload)
+    public function store(StorePostRequest $request, ImageUploadService $imageUpload)
     {
-        try{
-            $result = $post->create($request->validated());
-            if($request->has('tags')){
-                $tags = collect($request->input('tags'));
-                $formatted_tag = $tags->map(fn($item) => ['name' => $item]);
-                $result->tags()->createMany($formatted_tag);
-            }
-            if($request->has('categories_id')){
-                $categories = explode(',', implode(',',$request->input('categories_id')));
-                $result->categories()->attach($categories);
-            }
-            $imageUpload::uploadAnImage($request, $result, 'image_url', $request->getMethod());
-
-
-            return new PostResource($result);
-
+        $result = Post::create($request->validated());
+        if($request->has('tags')){
+            $tags = collect($request->input('tags'));
+            $formatted_tag = $tags->map(fn($item) => ['name' => $item]);
+            $result->tags()->createMany($formatted_tag);
         }
-        catch(\Exception $e){
-            return response($e->getMessage());
+        if($request->has('categories_id')){
+            $categories = explode(',', implode(',',$request->input('categories_id')));
+            $result->categories()->attach($categories);
         }
+        $imageUpload::uploadAnImage($request, $result, 'image_url', $request->getMethod());
+
+        return new PostResource($result);
     }
 
     /**
@@ -75,47 +61,45 @@ class PostController extends Controller
      */
     public function show(Request $request, Post $post)
     {
-        return new PostResource($post);
+        return new PostResource($post->load('tags', 'categories', 'comments'));
     }
 
     /**
      * Update the specified resource in storage.
      *
+     * @param  \App\Models\ImageUploadService  $imageUploadService
      * @param  \App\Http\Requests\UpdatePostRequest  $request
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
     public function update(UpdatePostRequest $request, Post $post, ImageUploadService $imageUpload)
     {
-        try{
-            $post->update($request->validated());
-            $post->categories()->sync($request->input('category_id'));
+        $data = $request->validated();
+        if(isset($data['categories_id'])){
+            $post->categories()->sync($request->input('categories_id'));
+        }
+        if(isset($data['tags'])){
             $post->tags()->sync($request->input('tags'));
+        }
+        if (isset($data['image'])){
             $imageUpload::uploadAnImage($request, $post, 'image_url', $request->getMethod());
-
-            return new PostResource($post);
         }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $post->update($data);
+        return new PostResource($post);
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \App\Models\ImageUploadService  $imageUploadService
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy(Post $post, ImageUploadService $imageUploadService)
     {
-        try{
-            $file = public_path('images/').base64_decode(Str::after($post->image_url, 'images/'));
-            File::delete($file);
-            $post->delete();
-            return response()->noContent();
-        }
-        catch(\Exception $e){
-            return response($e->getMessage());
-        }
+        $file = public_path('images/').$imageUploadService::getImageName($post, 'image_url');
+        File::delete($file);
+        $post->delete();
+        return response()->noContent();
     }
 }

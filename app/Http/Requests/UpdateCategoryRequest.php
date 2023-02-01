@@ -24,7 +24,8 @@ class UpdateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'nullable|string|min:3',
+            'description' => 'nullable|string'
         ];
     }
 }

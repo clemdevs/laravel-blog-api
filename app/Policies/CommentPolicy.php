@@ -30,7 +30,7 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment)
     {
-        return false;
+        return ($user->isAdmin() || $comment->approved == true);
     }
 
     /**
@@ -53,7 +53,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment)
     {
-        return ($comment->id === $comment->user_id) || false;
+        return $user->isAdmin();
     }
 
     /**
@@ -65,7 +65,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment)
     {
-        return false;
+        return ($user->isAdmin());
     }
 
     /**
