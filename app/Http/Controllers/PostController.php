@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
 class PostController extends Controller
 {
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->authorizeResource(Post::class, 'post');
     }
 
@@ -26,6 +27,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
+        //TODO: here is bad practice also. The batter way is get posts and paginate it on database level.
         return PostResource::collection(Post::all()->orderBy('created_at', 'desc')->paginate());
     }
 
@@ -37,14 +39,15 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request, ImageUploadService $imageUpload)
     {
+
         $result = Post::create($request->validated());
-        if($request->has('tags')){
+        if ($request->has('tags')) {
             $tags = collect($request->input('tags'));
-            $formatted_tag = $tags->map(fn($item) => ['name' => $item]);
+            $formatted_tag = $tags->map(fn ($item) => ['name' => $item]);
             $result->tags()->createMany($formatted_tag);
         }
-        if($request->has('categories_id')){
-            $categories = explode(',', implode(',',$request->input('categories_id')));
+        if ($request->has('categories_id')) {
+            $categories = explode(',', implode(',', $request->input('categories_id')));
             $result->categories()->attach($categories);
         }
         $imageUpload::uploadAnImage($request, $result, 'image_url', $request->getMethod());
@@ -74,14 +77,15 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post, ImageUploadService $imageUpload)
     {
+        //TODO: all syncs here are not right. Because if i need to sync for example categories but need to remove all. This will not sync it.
         $data = $request->validated();
-        if(isset($data['categories_id'])){
-            $post->categories()->sync($request->input('categories_id'));
-        }
-        if(isset($data['tags'])){
-            $post->tags()->sync($request->input('tags'));
-        }
-        if (isset($data['image'])){
+        // if (isset($data['categories_id'])) {
+            $post->categories()->sync($data['categories_id'] ?? []);
+        // }
+        // if (isset($data['tags'])) {
+            $post->tags()->sync($request->input('tags',[]));
+        // }
+        if (isset($data['image'])) {
             $imageUpload::uploadAnImage($request, $post, 'image_url', $request->getMethod());
         }
         $post->update($data);
@@ -97,7 +101,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post, ImageUploadService $imageUploadService)
     {
-        $file = public_path('images/').$imageUploadService::getImageName($post, 'image_url');
+        $file = public_path('images/') . $imageUploadService::getImageName($post, 'image_url');
         File::delete($file);
         $post->delete();
         return response()->noContent();

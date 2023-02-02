@@ -30,7 +30,7 @@ class StorePostRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string|min:5|max:1000',
+            'title' => 'required|string|min:5|max:255', //TODO: this max:1000 is not corresponding with database field varchar(255)
             'body' => 'required|string',
             'user_id' => 'exists:users,id',
             'categories_id' => 'array|nullable|exists:categories,id',

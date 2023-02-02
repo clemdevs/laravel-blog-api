@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Validator;
 class CommentController extends Controller
 {
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->authorizeResource(Comment::class, 'comment');
     }
 
@@ -27,7 +28,8 @@ class CommentController extends Controller
      */
     public function index(Post $post, Request $request)
     {
-        return new CommentResource($post->only('comments'));
+        //TODO: here I'm as a User can see all comments. Not only approved.
+        return new CommentResource($post->clientApprove()->only('comments'));
     }
 
     /**
@@ -42,7 +44,8 @@ class CommentController extends Controller
         $result = $post->comments()->create($request->validated());
 
         //Only allow admin to change comment to be approved.
-        if(isset($result['approved'])){
+        //TODO: this is a wrong concept. And not work.
+        if (isset($result['approved'])) {
             $this->authorize('update', [$post, $result['approved']]);
         }
 

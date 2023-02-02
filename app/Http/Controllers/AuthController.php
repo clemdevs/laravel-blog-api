@@ -12,6 +12,8 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+
+        //TODO: this should move in form request
         $data = $request->validate(
             [
                 'name' => 'required|string',
@@ -33,7 +35,8 @@ class AuthController extends Controller
         ]);
 
         //assign a default role to the user as 'user'
-        $user_role = Role::where('slug', 'user');
+        //TODO: this is not work because is just query builder
+        $user_role = Role::where('slug', 'user')->first();
         $user->roles()->attach($user_role);
 
 
@@ -47,12 +50,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        //TODO: this should move in form request
         $credentials = $request->validate([
             'email' => 'required|email|string|exists:users,email',
             'password' => 'required'
         ]);
 
-        if(Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
 
             /** @var \App\Models\User $user */
             $user = Auth::user();

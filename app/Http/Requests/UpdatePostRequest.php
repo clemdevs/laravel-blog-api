@@ -25,7 +25,7 @@ class UpdatePostRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'string|max:1000',
+            'title' => 'string|max:1000', //TODO: this max:1000 is not corresponding with database field varchar(255)
             'body' => 'nullable|string',
             'user_id' => 'exists:users,id',
             'categories_id' => 'nullable|array',

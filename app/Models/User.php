@@ -63,6 +63,9 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->roles('admin')->exists();
+        //TODO: this not work at all
+        // return $this->roles('admin')->exists();
+
+        return $this->roles->contains('slug', 'admin');
     }
 }

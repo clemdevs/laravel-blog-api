@@ -30,10 +30,15 @@ class StoreCommentRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $data = [
             'message' => 'string|required',
-            'approved' => 'boolean',
             'user_id' => 'exists:users,id'
         ];
+
+        if ($this->user()->isAdmin()) {
+            $data['approved'] = 'boolean';
+        }
+
+        return $data;
     }
 }

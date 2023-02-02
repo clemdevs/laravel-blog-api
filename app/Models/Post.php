@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,7 @@ class Post extends Model
     ];
 
     /**
+     * TODO: to get all relations all the time is bad practice. I told you for specific situation.
      * The relationships that should always be loaded.
      *
      * @var array
@@ -49,5 +51,15 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function scopeApprove(Builder $query)
+    {
+        if (auth()->user()->isAdmin()) {
+            return $query;
+        }
+
+
+        return $query->where('approved', 1);
     }
 }
