@@ -23,7 +23,7 @@ class PostResource extends JsonResource
             'updated_at' => $this->updated_at,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
-            'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            'comments' => CommentResource::collection($this->whenLoaded('approvedComments')),
         ];
     }
 }

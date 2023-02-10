@@ -30,11 +30,11 @@ class StorePostRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string|min:5|max:255', //TODO: this max:1000 is not corresponding with database field varchar(255)
+            'title' => 'required|string|min:5|max:255',
             'body' => 'required|string',
             'user_id' => 'exists:users,id',
-            'categories_id' => 'array|nullable|exists:categories,id',
-            'tags' => 'array|nullable',
+            'categories_id' => 'nullable|array',
+            'tags' => 'nullable|string',
             'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
         ];
     }

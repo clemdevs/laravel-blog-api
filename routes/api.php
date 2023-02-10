@@ -37,13 +37,20 @@ Route::middleware('auth:sanctum')->group(function(){
     //CRUD routes.
     Route::apiResource('/categories', CategoryController::class);
     Route::apiResource('/tags', TagController::class);
-    Route::apiResource('/posts', PostController::class);
 
-    //Post Comments crud
-    Route::group(['prefix' => 'posts/{post}'], function(){
-        Route::apiResource('/comments', CommentController::class);
+    //Comments that belong to post route.
+    Route::group(['prefix' => 'posts', 'as' => 'posts.'], function(){
+        Route::apiResource('/{post}/comments', CommentController::class)->except('show');
     });
+
+    Route::group(['prefix' => 'comments', 'as' => 'comments'], function(){
+        Route::get('/', [CommentController::class, 'index']);
+        Route::get('/{comment}', [CommentController::class, 'show']);
+    });
+
+    Route::apiResource('/posts', PostController::class);
 
     //Filter route.
     Route::get('/posts', PostFilterController::class);
+
 });

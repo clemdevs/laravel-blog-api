@@ -44,6 +44,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
     protected $with = ['roles'];
 
     public function roles(): BelongsToMany
@@ -63,9 +68,6 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        //TODO: this not work at all
-        // return $this->roles('admin')->exists();
-
         return $this->roles->contains('slug', 'admin');
     }
 }

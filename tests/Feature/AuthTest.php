@@ -2,29 +2,32 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class AuthTest extends TestCase
 {
+
+    use RefreshDatabase;
+
+    protected $user;
+
+    protected $token;
 
     public function __construct()
     {
-        $user = User::factory()->create();
-        auth()->login($user);
+        parent::__construct();
+
+        $this->user = User::factory()->make();
+
+        $this->token = $this->user->createToken('api_token')->plainTextToken;
     }
 
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function test_the_application_returns_a_successful_response()
-    {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+    /** @test */
+    public function test_auth_user_can_view_posts(){
+        $this->actingAs($this->user, 'sanctum');
+        $this->get('/api/posts');
     }
+
 }

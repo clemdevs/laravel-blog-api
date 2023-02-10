@@ -18,7 +18,7 @@ class TagFactory extends Factory
     {
 
         return [
-            'name' => strtolower(fake()->word())
+            'name' => strtolower(fake()->unique()->word())
         ];
     }
 }

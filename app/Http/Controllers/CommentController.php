@@ -6,11 +6,8 @@ use App\Models\Comment;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
-use App\Http\Resources\PostResource;
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -23,13 +20,14 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function index(Post $post, Request $request)
+    public function index(Request $request, Post $post)
     {
-        //TODO: here I'm as a User can see all comments. Not only approved.
-        return new CommentResource($post->clientApprove()->only('comments'));
+        if($request->routeIs('posts.comments.index')){
+            return CommentResource::collection($post->comments()->approved()->get());
+        }
+        return CommentResource::collection(auth()->user()->comments()->approved()->get());
     }
 
     /**
@@ -42,13 +40,6 @@ class CommentController extends Controller
     public function store(StoreCommentRequest $request, Post $post)
     {
         $result = $post->comments()->create($request->validated());
-
-        //Only allow admin to change comment to be approved.
-        //TODO: this is a wrong concept. And not work.
-        if (isset($result['approved'])) {
-            $this->authorize('update', [$post, $result['approved']]);
-        }
-
         return new CommentResource($result);
     }
 

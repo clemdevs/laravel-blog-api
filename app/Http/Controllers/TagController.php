@@ -31,7 +31,7 @@ class TagController extends Controller
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreTagRequest $request, Tag $tag)
+    public function store(StoreTagRequest $request = null, Tag $tag)
     {
         $result = $tag->create($request->validated());
         return new TagResource($result);

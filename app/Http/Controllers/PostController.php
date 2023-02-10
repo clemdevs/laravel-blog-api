@@ -6,10 +6,11 @@ use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
-use App\Services\ImageUploadService;
+use App\Models\Category;
+use App\Models\Tag;
+use App\Services\ImageUpload;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -25,34 +26,56 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index(Request $request)
+    public function index(Request $request, Post $post)
     {
-        //TODO: here is bad practice also. The batter way is get posts and paginate it on database level.
-        return PostResource::collection(Post::all()->orderBy('created_at', 'desc')->paginate());
+        return PostResource::collection($post->load('tags', 'categories', 'comments')->paginate());
     }
 
+
     /**
-     * Store a newly created resource in storage.
+     * Undocumented function
      *
-     * @param  \App\Http\Requests\StorePostRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param StorePostRequest $postRequest
+     * @param ImageUpload $imageUpload
+     * @return void
      */
-    public function store(StorePostRequest $request, ImageUploadService $imageUpload)
+    public function store(StorePostRequest $postRequest, ImageUpload $imageUpload)
     {
+        //validate the posts
+        $validatedPostData = $postRequest->validated();
 
-        $result = Post::create($request->validated());
-        if ($request->has('tags')) {
-            $tags = collect($request->input('tags'));
-            $formatted_tag = $tags->map(fn ($item) => ['name' => $item]);
-            $result->tags()->createMany($formatted_tag);
+        if(!empty($validatedPostData['image'])){
+            $relativePath = $imageUpload::setImage($validatedPostData['image']);
+            $validatedPostData['image_url'] = $relativePath;
         }
-        if ($request->has('categories_id')) {
-            $categories = explode(',', implode(',', $request->input('categories_id')));
-            $result->categories()->attach($categories);
-        }
-        $imageUpload::uploadAnImage($request, $result, 'image_url', $request->getMethod());
 
-        return new PostResource($result);
+        $post = Post::create($validatedPostData);
+
+        if(!empty($validatedPostData['tags'])){
+            $tags_names = explode(',', $validatedPostData['tags']);
+            $tags_names = array_map('trim', $tags_names);
+
+            foreach($tags_names as $tag_names){
+                Tag::firstOrCreate(['name' => $tag_names]);
+            }
+
+            $tags = Tag::whereIn('name', $tags_names)->pluck('id')->toArray();
+
+            $post->tags()->sync($tags);
+        };
+
+
+        if(!empty($validatedPostData['categories_id'])){
+
+            $categories_id = explode(',', implode(',', $validatedPostData['categories_id']));
+            $categories_id = array_map('trim', $categories_id);
+
+            $categories = Category::whereIn('name', $categories_id)->pluck('id')->toArray();
+
+            $post->categories()->sync($categories);
+        }
+
+        return new PostResource($post->load('categories', 'tags'));
     }
 
     /**
@@ -60,11 +83,10 @@ class PostController extends Controller
      *
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
-     * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Post $post)
+    public function show(Post $post)
     {
-        return new PostResource($post->load('tags', 'categories', 'comments'));
+        return new PostResource($post->load('tags', 'categories', 'approvedComments'));
     }
 
     /**
@@ -75,21 +97,32 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePostRequest $request, Post $post, ImageUploadService $imageUpload)
+    public function update(UpdatePostRequest $request, Post $post, ImageUpload $imageUpload)
     {
-        //TODO: all syncs here are not right. Because if i need to sync for example categories but need to remove all. This will not sync it.
         $data = $request->validated();
-        // if (isset($data['categories_id'])) {
-            $post->categories()->sync($data['categories_id'] ?? []);
-        // }
-        // if (isset($data['tags'])) {
-            $post->tags()->sync($request->input('tags',[]));
-        // }
-        if (isset($data['image'])) {
-            $imageUpload::uploadAnImage($request, $post, 'image_url', $request->getMethod());
+
+        if(!empty($data['categories_id'])){
+            $categories_input = explode(',', implode(',', $data['categories_id']));
+            $categories_input = array_map('trim', $categories_input);
+            $category = Category::whereIn('name', $categories_input)->pluck('id')->toArray();
+            $post->categories()->sync($category ?? []);
         }
+
+        if(!empty($data['tags'])){
+            $tags_ids = explode(',', $data['tags']);
+            $tags_ids = array_map('trim', $tags_ids);
+            $tags = Tag::whereIn('name', $tags_ids)->pluck('id')->toArray();
+            $post->tags()->sync($tags ?? []);
+        }
+
+        if (!empty($data['image'])) {
+            $relative_path = $imageUpload::setImage($data['image']);
+            $data['image_url'] = $relative_path;
+        }
+
         $post->update($data);
-        return new PostResource($post);
+
+        return new PostResource($post->load('categories', 'tags'));
     }
 
     /**
@@ -99,10 +132,9 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post, ImageUploadService $imageUploadService)
+    public function destroy(Post $post, ImageUpload $imageUpload)
     {
-        $file = public_path('images/') . $imageUploadService::getImageName($post, 'image_url');
-        File::delete($file);
+        $imageUpload::deleteImage($post['image_url']);
         $post->delete();
         return response()->noContent();
     }

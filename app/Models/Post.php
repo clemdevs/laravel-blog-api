@@ -25,14 +25,6 @@ class Post extends Model
         'user_id'
     ];
 
-    /**
-     * TODO: to get all relations all the time is bad practice. I told you for specific situation.
-     * The relationships that should always be loaded.
-     *
-     * @var array
-     */
-    protected $with = ['user', 'categories', 'tags', 'comments'];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -53,13 +45,8 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function scopeApprove(Builder $query)
+    public function approvedComments()
     {
-        if (auth()->user()->isAdmin()) {
-            return $query;
-        }
-
-
-        return $query->where('approved', 1);
+        return $this->comments()->approved();
     }
 }

@@ -53,7 +53,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment)
     {
-        return $user->isAdmin();
+        return ($user->isAdmin() || $user->id === $comment->user_id);
     }
 
     /**
@@ -65,7 +65,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment)
     {
-        return ($user->isAdmin());
+        return $user->isAdmin();
     }
 
     /**

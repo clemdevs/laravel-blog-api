@@ -30,7 +30,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post)
     {
-        return ($user->isAdmin() || $post->user_id === $user->id);
+        return true;
     }
 
     /**
