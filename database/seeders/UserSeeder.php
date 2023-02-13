@@ -16,8 +16,14 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        //Create an admin user.
         User::factory()->count(1)
-            ->hasRoles(1, ['name' => 'Admin', 'slug' => 'admin'])
+            ->hasRoles(1, ['name' => 'Admin'])
             ->create(['name' => 'Jon Doe', 'email' => 'jondoe@local.host']);
+
+        //Create 10 users.
+        User::factory(10)
+            ->create();
+
     }
 }

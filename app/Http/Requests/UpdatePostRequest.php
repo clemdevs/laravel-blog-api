@@ -28,7 +28,7 @@ class UpdatePostRequest extends FormRequest
             'title' => 'string|max:255',
             'body' => 'string|min:10',
             'user_id' => 'exists:users,id',
-            'categories_id' => 'array',
+            'categories' => 'string|exists:categories,name',
             'tags' => 'string',
             'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
         ];

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,12 +18,10 @@ class PostFactory extends Factory
      */
     public function definition()
     {
-        //TODO: shout have dummy data for posts
         return [
             'title' => fake()->unique()->name(),
             'body' => fake()->text(50),
             'image_url' => fake()->imageUrl(),
-            'user_id' => User::factory()->create()->id
         ];
     }
 }

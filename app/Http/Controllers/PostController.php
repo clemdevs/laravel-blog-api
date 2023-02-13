@@ -10,7 +10,6 @@ use App\Models\Category;
 use App\Models\Tag;
 use App\Services\ImageUpload;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -66,14 +65,14 @@ class PostController extends Controller
         };
 
 
-        if (!empty($validatedPostData['categories_id'])) {
+        if (!empty($validatedPostData['categories'])) {
 
-            $categories_id = explode(',', implode(',', $validatedPostData['categories_id']));
-            $categories_id = array_map('trim', $categories_id);
+            $categories = explode(',', $validatedPostData['categories']);
+            $categories = array_map('trim', $categories);
 
-            $categories = Category::whereIn('name', $categories_id)->pluck('id')->toArray();
+            $categories_data = Category::whereIn('name', $categories)->pluck('id')->toArray();
 
-            $post->categories()->sync($categories);
+            $post->categories()->sync($categories_data);
         }
 
         return new PostResource($post->load('categories', 'tags'));

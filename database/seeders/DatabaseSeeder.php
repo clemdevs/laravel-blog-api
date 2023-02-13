@@ -26,10 +26,12 @@ class DatabaseSeeder extends Seeder
 
         //Populate the db with some tags and categories
         $this->call([
-            UserSeeder::class,
             RoleSeeder::class,
+            UserSeeder::class,
             CategorySeeder::class,
-            TagSeeder::class
+            TagSeeder::class,
+            PostSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }
