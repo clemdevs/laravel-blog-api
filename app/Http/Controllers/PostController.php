@@ -28,7 +28,8 @@ class PostController extends Controller
      */
     public function index(Request $request, Post $post)
     {
-        return PostResource::collection($post->load('tags', 'categories', 'comments')->paginate());
+        //TODO: load in this case should be with, because it is query not collection. When is collection we user load otherwise use with
+        return PostResource::collection($post->with('tags', 'categories', 'comments')->paginate());
     }
 
 
@@ -44,18 +45,18 @@ class PostController extends Controller
         //validate the posts
         $validatedPostData = $postRequest->validated();
 
-        if(!empty($validatedPostData['image'])){
+        if (!empty($validatedPostData['image'])) {
             $relativePath = $imageUpload::setImage($validatedPostData['image']);
             $validatedPostData['image_url'] = $relativePath;
         }
 
         $post = Post::create($validatedPostData);
 
-        if(!empty($validatedPostData['tags'])){
+        if (!empty($validatedPostData['tags'])) {
             $tags_names = explode(',', $validatedPostData['tags']);
             $tags_names = array_map('trim', $tags_names);
 
-            foreach($tags_names as $tag_names){
+            foreach ($tags_names as $tag_names) {
                 Tag::firstOrCreate(['name' => $tag_names]);
             }
 
@@ -65,7 +66,7 @@ class PostController extends Controller
         };
 
 
-        if(!empty($validatedPostData['categories_id'])){
+        if (!empty($validatedPostData['categories_id'])) {
 
             $categories_id = explode(',', implode(',', $validatedPostData['categories_id']));
             $categories_id = array_map('trim', $categories_id);
@@ -101,14 +102,14 @@ class PostController extends Controller
     {
         $data = $request->validated();
 
-        if(!empty($data['categories_id'])){
+        if (!empty($data['categories_id'])) {
             $categories_input = explode(',', implode(',', $data['categories_id']));
             $categories_input = array_map('trim', $categories_input);
             $category = Category::whereIn('name', $categories_input)->pluck('id')->toArray();
             $post->categories()->sync($category ?? []);
         }
 
-        if(!empty($data['tags'])){
+        if (!empty($data['tags'])) {
             $tags_ids = explode(',', $data['tags']);
             $tags_ids = array_map('trim', $tags_ids);
             $tags = Tag::whereIn('name', $tags_ids)->pluck('id')->toArray();
