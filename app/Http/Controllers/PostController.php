@@ -25,10 +25,9 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index(Request $request, Post $post)
+    public function index(Request $postRequest)
     {
-        //TODO: load in this case should be with, because it is query not collection. When is collection we user load otherwise use with
-        return PostResource::collection($post->with('tags', 'categories', 'comments')->paginate());
+        return PostResource::collection(Post::with('tags', 'categories', 'comments')->paginate());
     }
 
 

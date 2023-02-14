@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tag>
@@ -18,7 +19,7 @@ class TagFactory extends Factory
     {
 
         return [
-            'name' => strtolower(fake()->unique()->word())
+            'name' => Str::lower(fake()->unique()->word())
         ];
     }
 }

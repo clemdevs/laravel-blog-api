@@ -19,7 +19,7 @@ class RoleFactory extends Factory
     {
         return [
             'name' => 'User',
-            'slug' => fn($atts) => Str::lower($atts['name'])
+            'slug' => fn($atts) => Str::slug($atts['name'])
         ];
     }
 }
