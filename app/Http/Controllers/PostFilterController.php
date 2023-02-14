@@ -22,7 +22,7 @@ class PostFilterController extends Controller
                 ])
                 ->get();
 
-        return new PostResource($posts);
+        return PostResource::collection($posts);
     }
 
 }

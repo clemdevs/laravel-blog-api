@@ -25,9 +25,10 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index(Request $postRequest)
+    public function index()
     {
-        return PostResource::collection(Post::with('tags', 'categories', 'comments')->paginate());
+        $posts = Post::with('tags', 'categories', 'comments')->paginate();
+        return PostResource::collection($posts);
     }
 
 
