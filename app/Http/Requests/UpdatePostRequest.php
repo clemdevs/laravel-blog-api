@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Category;
-use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePostRequest extends FormRequest

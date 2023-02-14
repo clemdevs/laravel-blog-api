@@ -15,7 +15,7 @@ class PostFilterController extends Controller
     public function __invoke(Request $request){
 
         $posts = QueryBuilder::for(Post::class)
-                ->with('categories', 'tags', 'comments')
+                ->with('categories', 'tags')
                 ->allowedFilters([
                     AllowedFilter::exact('categories', 'categories.id'),
                     AllowedFilter::exact('tags', 'tags.id')
