@@ -27,8 +27,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('tags', 'categories', 'comments')->paginate();
-        return PostResource::collection($posts);
+        return PostResource::collection(Post::with('tags', 'categories', 'comments')->paginate());
     }
 
 
