@@ -23,7 +23,7 @@ class PostSeeder extends Seeder
         $tag_count = fake()->numberBetween(Tag::first()->id, Tag::count());
 
         //filter admin users (random number of admins)
-        $admins = User::fetchAdmins()->get()->random()->first();
+        $admins = User::fetchAdmins()->get()->random();
         //only populate posts for admins.
         Post::factory($post_count)
             ->hasAttached(Category::all()->random($category_count))
