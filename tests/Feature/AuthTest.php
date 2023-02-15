@@ -64,7 +64,7 @@ class AuthTest extends TestCase
         $attributes['tags'] = 'tag1, tag2, tag3';
         $attributes['categories'] = Category::all()->random(5)->implode('name', ', ');
 
-        $this->actingAs($this->user->fetchAdmins()->first());
+        $this->actingAs($this->user->fetchAdmins()->random());
 
         $this->json('POST', "/api/posts", $attributes)->assertStatus(201);
 
