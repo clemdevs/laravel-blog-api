@@ -55,19 +55,20 @@ class AuthTest extends TestCase
     }
 
     /** @test */
-    public function test_auth_user_cannot_create_posts(){
+    public function test_auth_user_cannot_create_posts()
+    {
 
         $attributes = Post::factory()->make();
         $attributes['tags'] = 'tag1, tag2, tag3';
         $attributes['categories'] = Category::all()->random(5)->implode('name', ', ');
-
-        $data = (new PostResource($attributes))->resolve();
+        $data = $attributes->toArray();
 
         $this->json('POST', "/api/posts")->assertStatus(401);
 
         $this->actingAs($this->user);
 
-        $this->json('POST', "/api/posts", $data);
+        //TODO: make it to work properly
+        $this->json('POST', "/api/posts", $data)->assertStatus(201);
 
         $this->assertDatabaseMissing('posts', [$data['title']]);
     }
