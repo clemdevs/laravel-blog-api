@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -30,7 +31,8 @@ class AuthTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->user = User::factory()
+                      ->hasRoles(new Sequence(['name' => 'Admin'], ['name' => 'User']))->create();
 
         $this->posts = Post::factory(10)->hasComments(3)->for($this->user)->create();
 
@@ -55,22 +57,19 @@ class AuthTest extends TestCase
     }
 
     /** @test */
-    public function test_auth_user_cannot_create_posts()
+    public function test_auth_user_can_create_posts()
     {
 
-        $attributes = Post::factory()->make();
+        $attributes = Post::factory()->raw();
         $attributes['tags'] = 'tag1, tag2, tag3';
         $attributes['categories'] = Category::all()->random(5)->implode('name', ', ');
-        $data = $attributes->toArray();
 
-        $this->json('POST', "/api/posts")->assertStatus(401);
+        $this->actingAs($this->user->fetchAdmins()->first());
 
-        $this->actingAs($this->user);
+        $this->json('POST', "/api/posts", $attributes)->assertStatus(201);
 
-        //TODO: make it to work properly
-        $this->json('POST', "/api/posts", $data)->assertStatus(201);
+        $this->assertDatabaseHas('posts', ['title' => $attributes['title']]);
 
-        $this->assertDatabaseMissing('posts', [$data['title']]);
     }
 
     /** @test */
