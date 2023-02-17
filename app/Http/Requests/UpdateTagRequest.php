@@ -24,7 +24,7 @@ class UpdateTagRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|nullable'
+            'name' => 'nullable|string|max:255'
         ];
     }
 }

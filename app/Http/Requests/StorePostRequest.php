@@ -31,11 +31,11 @@ class StorePostRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:5|max:255',
-            'body' => 'required|string',
+            'body' => 'required|string|min:10',
             'user_id' => 'exists:users,id',
             'categories' => 'nullable|string|min:3',
-            'tags' => 'nullable|string',
-            'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
+            'tags' => 'nullable|string|max:255',
+            'image' => 'nullable|image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048',
         ];
     }
 }

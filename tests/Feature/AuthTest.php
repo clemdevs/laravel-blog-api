@@ -23,7 +23,7 @@ class AuthTest extends TestCase
     public Collection $posts;
 
     /**
-     * TODO:This is __construct. The best practice is to use sqlite and memory storage when make tests.
+     * This is __construct. The best practice is to use sqlite and memory storage when make tests.
      *
      * @return void
      */
@@ -32,7 +32,8 @@ class AuthTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()
-                      ->hasRoles(new Sequence(['name' => 'Admin'], ['name' => 'User']))->create();
+                      ->hasRoles(new Sequence(['name' => 'Admin'], ['name' => 'User']))
+                      ->create();
 
         $this->posts = Post::factory(10)->hasComments(3)->for($this->user)->create();
 
@@ -60,22 +61,23 @@ class AuthTest extends TestCase
     public function test_auth_user_can_create_posts()
     {
 
-        $attributes = Post::factory()->raw();
+        $attributes = Post::factory()->make();
         $attributes['tags'] = 'tag1, tag2, tag3';
         $attributes['categories'] = Category::all()->random(5)->implode('name', ', ');
+        $data = $attributes->toArray();
 
         $this->actingAs($this->user->fetchAdmins()->get()->random());
 
-        $this->json('POST', "/api/posts", $attributes)->assertStatus(201);
+        $this->json('POST', "/api/posts", $data)->assertStatus(201);
 
-        $this->assertDatabaseHas('posts', ['title' => $attributes['title']]);
+        $this->assertDatabaseHas('posts', ['title' => $data['title']]);
 
     }
 
     /** @test */
     public function test_user_can_view_approved_comment()
     {
-        $comment = Comment::find(1)->approved()->first();
+        $comment = Comment::find(1)->approved()->get()->random();
 
         $data = (new CommentResource($comment))->resolve();
 

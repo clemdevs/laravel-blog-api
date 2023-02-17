@@ -27,8 +27,8 @@ class UpdatePostRequest extends FormRequest
             'body' => 'string|min:10',
             'user_id' => 'exists:users,id',
             'categories' => 'string|exists:categories,name',
-            'tags' => 'string',
-            'image' => 'image|nullable|mimes:png,jpeg,jpg,svg,webp|max:2048'
+            'tags' => 'string|max:255',
+            'image' => 'nullable|image|mimes:png,jpeg,jpg,svg,webp|max:2048'
         ];
     }
 }
