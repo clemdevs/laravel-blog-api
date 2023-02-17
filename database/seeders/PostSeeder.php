@@ -19,15 +19,15 @@ class PostSeeder extends Seeder
     public function run()
     {
         $post_count = fake()->numberBetween(3, 10);
-        $category_count = fake()->numberBetween(Category::first()->id, Category::count());
-        $tag_count = fake()->numberBetween(Tag::first()->id, Tag::count());
+        $category_count = fake()->numberBetween(1, 6);
+        $tag_count = fake()->numberBetween(1, 10);
 
         //filter admin users (random number of admins)
         $admins = User::fetchAdmins()->get()->random();
         //only populate posts for admins.
         Post::factory($post_count)
-            ->hasAttached(Category::all()->random($category_count))
-            ->hasAttached(Tag::all()->random($tag_count))
+            ->hasCategories(Category::factory($category_count))
+            ->hasTags(Tag::factory($tag_count))
             ->for($admins)->create();
 
     }
