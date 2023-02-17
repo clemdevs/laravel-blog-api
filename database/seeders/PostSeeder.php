@@ -28,6 +28,7 @@ class PostSeeder extends Seeder
         Post::factory($post_count)
             ->hasCategories(Category::factory($category_count))
             ->hasTags(Tag::factory($tag_count))
+            ->hasComments(fake()->numberBetween(1, 3))
             ->for($random_admin)->create();
 
     }
