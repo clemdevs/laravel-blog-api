@@ -1,6 +1,6 @@
 ## Project description
 
-This is an example blog with Laravel using just back-end with authorization.
+This is an example blog made with Laravel, using only back-end.
 
 1. Administrator can Create/Edit/Update/Delete posts, categories, comments, tags.
 2. Administrator can upload an image to post.
