@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -21,6 +22,7 @@ class PostSeeder extends Seeder
         $post_count = fake()->numberBetween(3, 10);
         $category_count = fake()->numberBetween(1, 6);
         $tag_count = fake()->numberBetween(1, 10);
+        $comments_count = fake()->numberBetween(1, 3);
 
         //fetch admin users (random number of admins)
         $random_admin = User::fetchAdmins()->get()->random();
@@ -28,7 +30,7 @@ class PostSeeder extends Seeder
         Post::factory($post_count)
             ->hasCategories(Category::factory($category_count))
             ->hasTags(Tag::factory($tag_count))
-            ->hasComments(fake()->numberBetween(1, 3))
+            ->hasComments(Comment::factory($comments_count))
             ->for($random_admin)->create();
 
     }
